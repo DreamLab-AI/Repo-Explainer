@@ -92,17 +92,29 @@ async function render(path) {
     const url = await urlFor(resolve(raw));
     if (url) el.setAttribute('src', url); else el.removeAttribute('src');
   }
-  // A pack's own stylesheet lives in its <head>, and only the body is inserted below, so
-  // rewriting the link in the parsed document and stopping there throws the styling away: the
-  // pages then inherit whatever this site's stylesheet happens to cover and lose their own
-  // layout entirely. The link has to be adopted into the host document instead, once per
-  // stylesheet, replacing the previous page's so switching chapters does not accumulate them.
+  // A pack's stylesheets live in its <head>, and only the body is inserted below, so rewriting
+  // the links in the parsed document and stopping there throws the styling away: the pages then
+  // inherit whatever this site's stylesheet happens to cover and lose their own layout. They
+  // have to be adopted into the host document instead.
+  //
+  // All of them. A page linking two stylesheets is normal — one for the reading surface, one
+  // for the source pane — and clearing the previous page's links inside the loop meant the
+  // second adoption deleted the first, leaving a pack styled by half its own rules. So the set
+  // for this page is gathered first, then what is no longer wanted goes, then what is missing
+  // arrives.
+  const wanted = new Map();
   for (const el of doc.querySelectorAll('link[rel="stylesheet"][href]')) {
     const target = resolve(el.getAttribute('href'));
+    if (!wanted.has(target)) wanted.set(target, null);
+  }
+  for (const stale of document.querySelectorAll('link[data-pack-style]')) {
+    if (!wanted.has(stale.dataset.packStyle)) stale.remove();
+    else wanted.set(stale.dataset.packStyle, stale);
+  }
+  for (const [target, existing] of wanted) {
+    if (existing) continue;
     const url = await urlFor(target);
     if (!url) continue;
-    if (document.querySelector(`link[data-pack-style="${CSS.escape(target)}"]`)) continue;
-    for (const stale of document.querySelectorAll('link[data-pack-style]')) stale.remove();
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = url;
