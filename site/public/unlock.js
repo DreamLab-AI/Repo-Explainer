@@ -165,6 +165,12 @@ async function render(path) {
     a.setAttribute('tabindex', '0');
   }
   $('#view').replaceChildren(...doc.body.childNodes);
+  // A caption track whose src was set while it still belonged to the parser's own document
+  // tries to load there, fails, and stays failed: readyState 3 forever, no cues, captions
+  // silently absent from every clip. The blob and the WebVTT are fine — a fresh track element
+  // reads all of it. So each one is replaced by a copy of itself now that it is in the live
+  // document, which starts the load over in a place where it can succeed.
+  for (const t of $('#view').querySelectorAll('track')) t.replaceWith(t.cloneNode(true));
   $('#view').querySelectorAll('[data-page]').forEach((a) => {
     const go = (e) => { e.preventDefault(); render(a.dataset.page); window.scrollTo(0, 0); };
     a.addEventListener('click', go);
