@@ -104,3 +104,10 @@ figure.method .wide:focus-visible { outline: 3px solid var(--accent); outline-of
 }
 #leave:hover, #leave:focus-visible { background: #08665e; color: #fff; }
 @media print { #leave { display: none; } }
+
+/* A citation into the repository, which the sealed site does not carry. It keeps the file and
+   lines visible, because that is what the citation was for, and stops pretending to be a link. */
+.unresolved {
+  border-bottom: 1px dotted currentColor; opacity: .8;
+  font-family: ui-monospace, monospace; font-size: .93em;
+}

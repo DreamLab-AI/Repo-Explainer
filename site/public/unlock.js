@@ -86,6 +86,15 @@ async function render(path) {
   const resolve = (href) => (href.startsWith('/') || /^[a-z]+:/i.test(href) ? href
     : new URL(base + href, 'http://x/').pathname.slice(1));
 
+  // A poster is a picture fetched like any other, but it arrives as its own attribute rather
+  // than as src, so a loop over [src] walks straight past it and every clip opens on a broken
+  // frame instead of the still someone chose.
+  for (const el of doc.querySelectorAll('[poster]')) {
+    const raw = el.getAttribute('poster');
+    if (!raw || /^(https?:|data:|blob:)/i.test(raw)) continue;
+    const url = await urlFor(resolve(raw));
+    if (url) el.setAttribute('poster', url); else el.removeAttribute('poster');
+  }
   for (const el of doc.querySelectorAll('[src]')) {
     const raw = el.getAttribute('src');
     if (!raw || /^(https?:|data:|blob:)/i.test(raw)) continue;
@@ -125,10 +134,32 @@ async function render(path) {
     const url = await urlFor(resolve(el.getAttribute('src')));
     if (url) el.setAttribute('src', url);
   }
+  // A link inside a pack usually goes to another page, and those stay in the viewer. Some go
+  // to a file that is not a page at all — a transcript, a caption file, a clip — and rendering
+  // one of those as HTML shows the reader its source. Those become ordinary links to a decrypted
+  // blob, opened in a new tab, so the browser does what it would do with any file of that type.
   for (const a of doc.querySelectorAll('a[href]')) {
     const href = a.getAttribute('href');
     if (!href || /^(https?:|mailto:|#)/i.test(href)) continue;
-    a.dataset.page = resolve(href);
+    const target = resolve(href);
+    const entry = entryFor(target.split('#')[0]);
+    if (entry && entry.type !== 'text/html') {
+      const url = await urlFor(target.split('#')[0]);
+      if (url) { a.href = url; a.target = '_blank'; a.rel = 'noopener'; continue; }
+    }
+    // A citation points into the repository the pack was written from, which is not published
+    // and cannot be: that is the whole reason the pack is sealed. Left as a link it is a dead
+    // one. As text it still carries what it was for — the file and the lines a claim rests on,
+    // which a reader with a checkout can open and a reader without one can at least name.
+    if (!entry) {
+      const span = document.createElement('span');
+      span.className = 'unresolved';
+      span.title = 'Cited from the repository, which is not published here';
+      span.append(...a.childNodes);
+      a.replaceWith(span);
+      continue;
+    }
+    a.dataset.page = target;
     a.removeAttribute('href');
     a.setAttribute('role', 'link');
     a.setAttribute('tabindex', '0');

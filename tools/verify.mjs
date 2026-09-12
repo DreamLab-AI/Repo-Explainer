@@ -72,6 +72,59 @@ try {
   console.log('a wrong passphrase fails on the authentication tag, as it must');
 }
 
+// Every reference a page makes must resolve inside the pack. The reader has no filesystem to
+// fall back on: a path the manifest does not carry is a broken image or a dead link with no
+// way to recover it. This matters more after excluding anything from the seal, and it is the
+// mirror of the fault that prompted it — seven clips and seven diagrams sat in this pack for a
+// day, gated and sealed, referenced by no page at all.
+{
+  const paths = new Set(manifest.entries.map((e) => e.path));
+  const pages = manifest.entries.filter((e) => e.type === 'text/html');
+  const dangling = [], citations = [];
+  let refs = 0;
+  for (const page of pages) {
+    const html = new TextDecoder().decode(await open(readFileSync(join(site, 'enc', pack, `${page.blob}.bin`)), key));
+    const dir = page.path.includes('/') ? page.path.slice(0, page.path.lastIndexOf('/') + 1) : '';
+    for (const m of html.matchAll(/\s(?:src|href|poster)\s*=\s*"([^"]+)"/g)) {
+      const raw = m[1];
+      if (/^(https?:|mailto:|data:|blob:|#|\/)/i.test(raw)) continue;
+      refs++;
+      const target = new URL(dir + raw.split('#')[0], 'http://x/').pathname.slice(1);
+      if (!target || paths.has(target)) continue;
+      // A path that climbs out of the pack is a citation into the repository the pack was
+      // written from. Those are deliberate, the viewer shows them as text, and they are not a
+      // fault. A path that stays inside the pack and resolves to nothing is.
+      (raw.startsWith('../../') ? citations : dangling).push(`${page.path} -> ${target}`);
+    }
+  }
+  console.log(dangling.length === 0
+    ? `${refs} references across ${pages.length} pages resolve, ${citations.length} of them `
+      + 'citations into the repository which the viewer shows as text'
+    : `${dangling.length} reference(s) point at nothing in this pack:`);
+  for (const d of dangling.slice(0, 20)) console.log('  ' + d);
+  if (dangling.length) process.exitCode = 1;
+}
+
+// Media a reader can actually reach. A pack whose clips are produced, gated and sealed but
+// embedded in no page passes every other check here and delivers none of them.
+{
+  const pages = manifest.entries.filter((e) => e.type === 'text/html');
+  let withVideo = 0, withImage = 0, withCaptions = 0;
+  for (const page of pages) {
+    const html = new TextDecoder().decode(await open(readFileSync(join(site, 'enc', pack, `${page.blob}.bin`)), key));
+    if (/<video\b/i.test(html)) withVideo++;
+    if (/<img\b/i.test(html)) withImage++;
+    if (/<track\b/i.test(html)) withCaptions++;
+  }
+  const clips = manifest.entries.filter((e) => e.type.startsWith('video/')).length;
+  console.log(`${clips} clip(s) sealed; ${withVideo} of ${pages.length} pages embed a player, `
+    + `${withCaptions} carry captions, ${withImage} show a picture`);
+  if (clips > 0 && withVideo === 0) {
+    console.log('  no page embeds a clip: the video ships but no reader can reach it');
+    process.exitCode = 1;
+  }
+}
+
 // Nothing published may be readable. The check lives in refuse-plaintext.mjs so that this
 // verification and the deploy gate cannot drift apart, and so neither can be satisfied by a
 // looser test than the other. Pass --marker <word> to also refuse a build containing a name

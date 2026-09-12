@@ -43,11 +43,20 @@ const TYPES = {
 // production record, anything a run left in a scratch directory, and version-control metadata.
 const SKIP_DIR = new Set(['.git', 'node_modules', 'production', 'record', 'scratch', '__pycache__']);
 
+// The same rule, for records that sit beside the thing they describe rather than in a directory
+// of their own. Each clip ships with how it was planned, what the services returned, and a note
+// on how it was assembled. A reader needs the film, its poster, its captions and its transcript;
+// the rest is our working record, it names our internal tooling, and it was never meant to
+// travel. Directory-level skipping missed these because they live next to the mp4.
+const SKIP_FILE = new Set(['plan.json', 'receipt.json', 'construction.md', 'captions.srt']);
+
 const walk = (dir, out = []) => {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     if (SKIP_DIR.has(e.name) || e.name.startsWith('.')) continue;
     const p = join(dir, e.name);
-    if (e.isDirectory()) walk(p, out); else out.push(p);
+    if (e.isDirectory()) { walk(p, out); continue; }
+    if (SKIP_FILE.has(e.name)) continue;
+    out.push(p);
   }
   return out;
 };
