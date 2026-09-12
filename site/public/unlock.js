@@ -149,7 +149,7 @@ async function start(pack, passphrase) {
     $('#gate').remove();
     $('#viewer').hidden = false;
     document.body.classList.add('reading');
-    $('#pack-name').textContent = nameOf(pack);
+    $('#leave').title = `Leave the ${nameOf(pack)}`;
     await render(manifest.entry);
   } catch (err) {
     $('#gate-status').textContent = err.message;

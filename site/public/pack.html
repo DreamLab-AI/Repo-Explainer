@@ -36,7 +36,9 @@
      two headers and two elements with id="main" is what wrapping produced. All that remains
      is one fixed affordance for getting back out. -->
 <div id="viewer" hidden>
-  <a id="leave" href="index.html">&larr; <span id="pack-name"></span></a>
+  <!-- Short on purpose: it is pinned over the pack's own page, so it has to take
+       as little of it as possible. The pack it is leaving is named in its title. -->
+  <a id="leave" href="index.html" title="Back to the packs">&larr; Packs</a>
   <div id="view"></div>
 </div>
 
