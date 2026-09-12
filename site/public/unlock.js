@@ -37,7 +37,12 @@ async function fetchSealed(url) {
 }
 
 async function unlock(pack, passphrase) {
-  const params = await (await fetch(`enc/${pack}.params.json`, { cache: 'no-store' })).json();
+  // A pack still being made is linked from the landing page before it is sealed. Without this
+  // the 404 page comes back, JSON.parse chokes on its first angle bracket, and the reader is
+  // told something that reads like their passphrase was wrong.
+  const res = await fetch(`enc/${pack}.params.json`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`The ${nameOf(pack)} is still being made and is not on the site yet.`);
+  const params = await res.json();
   const key = await deriveKey(passphrase, params);
   let manifest;
   try {
