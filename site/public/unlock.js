@@ -92,9 +92,22 @@ async function render(path) {
     const url = await urlFor(resolve(raw));
     if (url) el.setAttribute('src', url); else el.removeAttribute('src');
   }
+  // A pack's own stylesheet lives in its <head>, and only the body is inserted below, so
+  // rewriting the link in the parsed document and stopping there throws the styling away: the
+  // pages then inherit whatever this site's stylesheet happens to cover and lose their own
+  // layout entirely. The link has to be adopted into the host document instead, once per
+  // stylesheet, replacing the previous page's so switching chapters does not accumulate them.
   for (const el of doc.querySelectorAll('link[rel="stylesheet"][href]')) {
-    const url = await urlFor(resolve(el.getAttribute('href')));
-    if (url) el.setAttribute('href', url);
+    const target = resolve(el.getAttribute('href'));
+    const url = await urlFor(target);
+    if (!url) continue;
+    if (document.querySelector(`link[data-pack-style="${CSS.escape(target)}"]`)) continue;
+    for (const stale of document.querySelectorAll('link[data-pack-style]')) stale.remove();
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = url;
+    link.dataset.packStyle = target;
+    document.head.append(link);
   }
   for (const el of doc.querySelectorAll('track[src], source[src]')) {
     const url = await urlFor(resolve(el.getAttribute('src')));
@@ -131,8 +144,11 @@ async function start(pack, passphrase) {
   $('#gate-status').textContent = 'Deriving the key. This is deliberately slow.';
   try {
     const manifest = await unlock(pack, passphrase);
-    $('#gate').hidden = true;
+    // The gate leaves the document entirely rather than hiding, so its heading and its main
+    // element cannot collide with the pack's own once the pack's stylesheet is in force.
+    $('#gate').remove();
     $('#viewer').hidden = false;
+    document.body.classList.add('reading');
     $('#pack-name').textContent = nameOf(pack);
     await render(manifest.entry);
   } catch (err) {

@@ -3,13 +3,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Repo Explainer · unlock a pack</title>
+<title>Repo Explainer · unlock</title>
 <link rel="stylesheet" href="style.css">
 <body>
-<a class="skip" href="#main">Skip to content</a>
-<header>REPO EXPLAINER <span id="pack-name-header"></span></header>
 
+<!-- Before unlocking, this page is the lock and nothing else. -->
 <div class="gate" id="gate">
+  <a class="skip" href="#main">Skip to content</a>
+  <header>REPO EXPLAINER <span id="pack-name-header"></span></header>
   <main id="main">
     <p class="eyebrow">Locked</p>
     <h1>The <span id="gate-pack">executive and investor pack</span></h1>
@@ -30,17 +31,18 @@
   </main>
 </div>
 
+<!-- After unlocking, the pack's own pages become the page. They carry their own header,
+     navigation and main element, so nothing of this site's chrome is wrapped around them:
+     two headers and two elements with id="main" is what wrapping produced. All that remains
+     is one fixed affordance for getting back out. -->
 <div id="viewer" hidden>
-  <main>
-    <p class="eyebrow">Unlocked · <span id="pack-name"></span> · decrypted in this tab only</p>
-    <div id="view"></div>
-  </main>
+  <a id="leave" href="index.html">&larr; <span id="pack-name"></span></a>
+  <div id="view"></div>
 </div>
 
 <script src="unlock.js"></script>
 <script>
-  // The header should name the pack before anything is unlocked.
-  // unlock.js holds the readable names; the header only needs the slug until it loads.
+  // Until unlock.js has the readable names, the header shows the slug from the URL.
   document.getElementById('pack-name-header').textContent =
     new URLSearchParams(location.search).get('pack') || 'executive';
 </script>
