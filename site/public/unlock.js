@@ -132,7 +132,14 @@ async function render(path) {
   }
   for (const el of doc.querySelectorAll('track[src], source[src]')) {
     const url = await urlFor(resolve(el.getAttribute('src')));
-    if (url) el.setAttribute('src', url);
+    if (!url) continue;
+    // A source can carry its blob straight away. A track cannot: given a src while it still
+    // belongs to the parser's document it starts loading there, fails, and stays failed after
+    // adoption — readyState 3, no cues, captions quietly missing from every clip, and replacing
+    // the element afterwards does not clear it. So the address is parked on the element and
+    // attached below, once the element is somewhere a load can succeed.
+    if (el.tagName === 'TRACK') { el.removeAttribute('src'); el.dataset.blobSrc = url; }
+    else el.setAttribute('src', url);
   }
   // A link inside a pack usually goes to another page, and those stay in the viewer. Some go
   // to a file that is not a page at all — a transcript, a caption file, a clip — and rendering
@@ -165,12 +172,11 @@ async function render(path) {
     a.setAttribute('tabindex', '0');
   }
   $('#view').replaceChildren(...doc.body.childNodes);
-  // A caption track whose src was set while it still belonged to the parser's own document
-  // tries to load there, fails, and stays failed: readyState 3 forever, no cues, captions
-  // silently absent from every clip. The blob and the WebVTT are fine — a fresh track element
-  // reads all of it. So each one is replaced by a copy of itself now that it is in the live
-  // document, which starts the load over in a place where it can succeed.
-  for (const t of $('#view').querySelectorAll('track')) t.replaceWith(t.cloneNode(true));
+  // Now the tracks are in the live document, give them their addresses.
+  for (const t of $('#view').querySelectorAll('track[data-blob-src]')) {
+    t.src = t.dataset.blobSrc;
+    delete t.dataset.blobSrc;
+  }
   $('#view').querySelectorAll('[data-page]').forEach((a) => {
     const go = (e) => { e.preventDefault(); render(a.dataset.page); window.scrollTo(0, 0); };
     a.addEventListener('click', go);
