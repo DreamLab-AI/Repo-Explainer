@@ -172,10 +172,19 @@ async function render(path) {
     a.setAttribute('tabindex', '0');
   }
   $('#view').replaceChildren(...doc.body.childNodes);
-  // Now the tracks are in the live document, give them their addresses.
-  for (const t of $('#view').querySelectorAll('track[data-blob-src]')) {
-    t.src = t.dataset.blobSrc;
-    delete t.dataset.blobSrc;
+  // Captions need a track element this document made. One parsed out of the pack's HTML and
+  // adopted here refuses to load a blob no matter when it is given the address: readyState stays
+  // 3, cues stay empty, and the clips play with no captions and no complaint. A fresh element
+  // pointed at the very same blob reads every cue, which is how this was pinned down. So each
+  // adopted track is rebuilt from its own attributes and then given the address.
+  for (const old of $('#view').querySelectorAll('track[data-blob-src]')) {
+    const t = document.createElement('track');
+    for (const { name, value } of [...old.attributes]) {
+      if (name !== 'src' && name !== 'data-blob-src') t.setAttribute(name, value);
+    }
+    const url = old.dataset.blobSrc;
+    old.replaceWith(t);
+    t.src = url;
   }
   $('#view').querySelectorAll('[data-page]').forEach((a) => {
     const go = (e) => { e.preventDefault(); render(a.dataset.page); window.scrollTo(0, 0); };
