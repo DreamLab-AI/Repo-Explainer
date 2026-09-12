@@ -1,0 +1,68 @@
+name: Publish the site
+
+# Only the contents of site/ are published: the landing page, the unlock script, and the
+# sealed packs. Nothing is built or decrypted here, and no key ever reaches this runner —
+# sealing happens locally, on the machine that holds the source.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  refuse-plaintext:
+    # A build that publishes a readable client file is worse than a failed build, so the
+    # workflow looks for one before Pages ever sees the directory.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refuse to publish anything readable from a pack
+        run: |
+          set -euo pipefail
+          if [ -d site/enc ]; then
+            bad=$(find site/enc -type f ! -name '*.bin' ! -name '*.params.json' | head -20 || true)
+            if [ -n "$bad" ]; then
+              echo "these files are not sealed and would be published in the clear:" >&2
+              echo "$bad" >&2
+              exit 1
+            fi
+            # A sealed file that still carries a recognisable signature was not sealed.
+            if grep -rlaE 'ftyp|<!doctype|WEBVTT' site/enc --include='*.bin' | head -5 | grep .; then
+              echo "a sealed file reveals its type; the build is not safe to publish" >&2
+              exit 1
+            fi
+          fi
+          echo "nothing readable found under site/enc"
+
+  deploy:
+    needs: refuse-plaintext
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Assemble what gets served
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          cp -r site/public/. _site/
+          if [ -d site/enc ]; then mkdir -p _site/enc && cp -r site/enc/. _site/enc/; fi
+          # Jekyll would otherwise ignore anything beginning with an underscore.
+          touch _site/.nojekyll
+          find _site -maxdepth 2 -type d | sed 's|^|  |'
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

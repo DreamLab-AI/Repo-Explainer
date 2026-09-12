@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Repo Explainer · three packs, one codebase</title>
+<link rel="stylesheet" href="style.css">
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header>REPO EXPLAINER <span>Three audiences, one codebase, all of it made on local hardware</span></header>
+
+<main id="main">
+  <p class="eyebrow">DreamLab AI Consulting</p>
+  <h1>One codebase, explained three times</h1>
+
+  <p class="lead">
+    The same system explained to the three people who need it: the engineer who inherits the
+    code, the person who uses the product to get a job done, and the executive deciding
+    whether to back it. Not one document with three audiences bolted on, but three packs that
+    differ in what they say, how deep they go, and what they show.
+  </p>
+
+  <figure>
+    <video controls preload="metadata" poster="poster.jpg">
+      <source src="opening.mp4" type="video/mp4">
+      Your browser cannot play this clip.
+    </video>
+    <figcaption>
+      Generated on a local GPU with an image-to-video model, as illustration rather than as a
+      picture of any product. Everything else in these packs was made the same way: on this
+      hardware, by a model running in this building.
+    </figcaption>
+  </figure>
+
+  <section>
+    <h2>The three packs</h2>
+    <p>
+      Each opens with a passphrase. The content is encrypted at rest, so this site serves
+      nothing readable until a key is supplied.
+    </p>
+    <div class="packs">
+      <a class="pack" href="pack.html?pack=executive">
+        <h3>Executive and investor</h3>
+        <p>What the product is, what one change does to it, where the decisions sit, and what
+           an evaluator should try first. Seven chapters, seven diagrams, a narrated clip each.</p>
+        <span class="state">Open →</span>
+      </a>
+      <a class="pack" href="pack.html?pack=user" aria-disabled="true">
+        <h3>The people who use it</h3>
+        <p>One chapter per job someone came to do, each showing the screen they will be
+           looking at, each with a clip of the job being done.</p>
+        <span class="state">In production</span>
+      </a>
+      <a class="pack" href="pack.html?pack=developer" aria-disabled="true">
+        <h3>The engineer who inherits it</h3>
+        <p>The system by its parts, with the source beside the prose: every claim citing the
+           file and line it came from, and the file open next to it.</p>
+        <span class="state">In production</span>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Made here, on our own hardware</h2>
+    <p>
+      No part of this content was written by a hosted model. The chapters, the diagrams, the
+      narration and the clips were produced by a large language model running on a GPU in our
+      own rack, reading a private repository that never left it.
+    </p>
+    <table>
+      <tr><th>What</th><th>How it was made</th></tr>
+      <tr><td>Chapters</td><td>A 27-billion-parameter model on a local GPU, reading the source and citing the lines it read</td></tr>
+      <tr><td>Diagrams</td><td>Drawn as code by the same model, rendered locally, then measured for legibility at the size they are seen</td></tr>
+      <tr><td>Screenshots</td><td>Captured from the running product by a browser on the same network, never a mock-up</td></tr>
+      <tr><td>Narration</td><td>Synthesised by a local speech model; every scene timed to the audio rather than estimated</td></tr>
+      <tr><td>Illustration</td><td>An image-to-video model on a local GPU, labelled as illustration wherever it appears</td></tr>
+      <tr><td>Assembly</td><td>A deterministic compositor and FFmpeg, on the same machine</td></tr>
+    </table>
+    <p>
+      The reason is not cost. A codebase under a confidentiality agreement cannot be posted to
+      someone else's inference endpoint, and an explainer worth having must read the whole
+      thing. Keeping the model on the same network as the code is what makes the work possible
+      at all.
+    </p>
+  </section>
+
+  <section>
+    <h2>How a pack is built</h2>
+    <p>
+      Each pack is produced by a sequence of bounded steps rather than one long conversation.
+      A step writes one chapter, or draws one diagram, or takes the screenshots, and then
+      stops; the next step reads what it left on disk. Every claim about behaviour cites the
+      file and lines it came from, and an independent step opens each citation and judges
+      whether the code actually says what the sentence claims.
+    </p>
+    <p>
+      Media is made, then looked at, then revised. The looking is done by a separate step that
+      is handed the frames, because a model cannot see a picture it has only written to disk.
+      That step has rejected screenshots showing a product mid-failure, diagrams whose labels
+      were six pixels tall, and a title band colliding with a heading underneath it.
+    </p>
+    <div class="notice">
+      <strong>What the packs do not claim.</strong> Each one ends with what its gates actually
+      showed, including what is still red. A pack that passed every check says so; a pack with
+      an unverified claim says that instead.
+    </div>
+  </section>
+
+  <section>
+    <h2>Access</h2>
+    <p>
+      The passphrase is shared separately and is not recorded here. Content is sealed with
+      AES-256-GCM under a key derived from that passphrase, and the key derivation is
+      deliberately slow. Nothing on this host is readable without it, including the clips,
+      the captions and the list of what each pack contains.
+    </p>
+  </section>
+</main>
+</body>
+</html>

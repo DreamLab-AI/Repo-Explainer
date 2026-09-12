@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Repo Explainer · unlock a pack</title>
+<link rel="stylesheet" href="style.css">
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header>REPO EXPLAINER <span id="pack-name-header"></span></header>
+
+<div class="gate" id="gate">
+  <main id="main">
+    <p class="eyebrow">Locked</p>
+    <h1>The <span id="gate-pack">executive</span> pack</h1>
+    <p>
+      This pack is encrypted where it sits. Enter the passphrase and it is decrypted in your
+      browser: nothing readable is stored on the server, and the clips are decrypted only when
+      you open them.
+    </p>
+    <form id="gate-form">
+      <input id="passphrase" type="password" autocomplete="off" spellcheck="false"
+             placeholder="Passphrase" aria-label="Passphrase" required>
+      <button type="submit">Unlock</button>
+    </form>
+    <p id="gate-status" role="status" aria-live="polite">
+      Deriving the key takes a second or two by design.
+    </p>
+    <p><a href="index.html">Back to the three packs</a></p>
+  </main>
+</div>
+
+<div id="viewer" hidden>
+  <main>
+    <p class="eyebrow">Unlocked · <span id="pack-name"></span> · decrypted in this tab only</p>
+    <div id="view"></div>
+  </main>
+</div>
+
+<script src="unlock.js"></script>
+<script>
+  // The header should name the pack before anything is unlocked.
+  document.getElementById('pack-name-header').textContent =
+    (new URLSearchParams(location.search).get('pack') || 'executive') + ' pack';
+</script>
+</body>
+</html>
