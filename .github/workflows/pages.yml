@@ -54,8 +54,10 @@ jobs:
           # of cache, so without this a reader who visited before a fix keeps the broken
           # version for ten minutes after every deploy, and so does anyone testing it — which
           # cost real time chasing a caption bug that was already fixed.
+          # Extended regex and a delimiter that is not also the alternation character: with "|"
+          # doing both jobs, sed read "\|" as an escaped delimiter and quietly changed nothing.
           for f in _site/*.html; do
-            sed -i "s|\(src\|href\)=\"\(unlock\.js\|style\.css\)\"|\1=\"\2?v=${GITHUB_SHA::12}\"|g" "$f"
+            sed -Ei "s#(src|href)=\"(unlock\.js|style\.css)\"#\1=\"\2?v=${GITHUB_SHA:0:12}\"#g" "$f"
           done
           grep -ho 'unlock\.js?v=[0-9a-f]*' _site/*.html | sort -u || echo 'no script reference was stamped'
           # Jekyll would otherwise ignore anything beginning with an underscore.
