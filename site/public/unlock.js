@@ -117,13 +117,23 @@ async function render(path) {
   history.replaceState(null, '', `#${state.pack}/${path}`);
 }
 
+// What each collection is called in a sentence, so a gate reads "the documentation stack" and
+// not "the docs pack". A name not listed here falls back to the slug, which is honest but plain.
+const NAMES = {
+  executive: 'executive and investor pack',
+  user: 'pack for the people who use it',
+  developer: 'pack for the engineer who inherits it',
+  docs: 'documentation stack the repository carries',
+};
+const nameOf = (pack) => NAMES[pack] ?? `${pack} pack`;
+
 async function start(pack, passphrase) {
   $('#gate-status').textContent = 'Deriving the key. This is deliberately slow.';
   try {
     const manifest = await unlock(pack, passphrase);
     $('#gate').hidden = true;
     $('#viewer').hidden = false;
-    $('#pack-name').textContent = pack;
+    $('#pack-name').textContent = nameOf(pack);
     await render(manifest.entry);
   } catch (err) {
     $('#gate-status').textContent = err.message;
@@ -131,9 +141,22 @@ async function start(pack, passphrase) {
   }
 }
 
+// The browser only exposes its cryptography to a secure context, so over plain http there is
+// nothing to derive a key with and every attempt fails deep inside with an unhelpful type error.
+// Say what is wrong instead: the published site is https, and this is what a local preview hits.
+function cryptoAvailable() {
+  if (window.isSecureContext && window.crypto?.subtle) return true;
+  $('#gate-status').textContent = 'This page needs a secure connection. Your browser only offers '
+    + 'the cryptography that opens this over https, or from localhost.';
+  $('#passphrase').disabled = true;
+  $('#gate-form').querySelector('button').disabled = true;
+  return false;
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   const pack = new URLSearchParams(location.search).get('pack') || 'executive';
-  $('#gate-pack').textContent = pack;
+  $('#gate-pack').textContent = nameOf(pack);
+  if (!cryptoAvailable()) return;
   $('#gate-form').addEventListener('submit', (e) => {
     e.preventDefault();
     start(pack, $('#passphrase').value.trim());

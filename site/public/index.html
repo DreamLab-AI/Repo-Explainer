@@ -61,6 +61,36 @@
   </section>
 
   <section>
+    <h2>And the documentation the codebase already had</h2>
+    <p>
+      The packs are written for people. This is different: it is the working documentation the
+      repository carries in its own tree, rendered so it can be read in a browser. Two hundred
+      and eighteen pages, and four hundred and fifty-six diagrams drawn from mermaid sources
+      held beside the code.
+    </p>
+    <p>
+      It is here because a pack is a route through a system and this is the map underneath it.
+      An engineer who wants the part a chapter summarised in a paragraph will find it written
+      out at length, with the files it was checked against and the commit at which that was
+      true. Each diagram shows the drawing and keeps its source one click below.
+    </p>
+    <div class="packs">
+      <a class="pack" href="pack.html?pack=docs">
+        <h3>The repository&rsquo;s own documentation</h3>
+        <p>Tutorials, how-to pages, reference, explanation, and a diagrams-as-code corpus of
+           fifty-seven topics across six areas of the system.</p>
+        <span class="state">Open &rarr;</span>
+      </a>
+    </div>
+    <p>
+      Fifty-eight of those diagrams were never drawn by the repository: they sat in prose pages
+      as mermaid that nothing had rendered. They were rendered here, and labelled as such. Three
+      more could not be, because their source does not parse; those pages say so where the
+      picture would have been, which is more use to whoever maintains them than a silence.
+    </p>
+  </section>
+
+  <section>
     <h2>Made here, on our own hardware</h2>
     <p>
       No part of this content was written by a hosted model. The chapters, the diagrams, the
@@ -86,6 +116,80 @@
 
   <section>
     <h2>How a pack is built</h2>
+  <figure class="method">
+    <div class="wide" tabindex="0" role="group" aria-label="Diagram, scrollable sideways">
+    <svg viewBox="0 0 1200 430" role="img" aria-labelledby="pipe-t pipe-d" xmlns="http://www.w3.org/2000/svg">
+      <title id="pipe-t">How a pack is made</title>
+      <desc id="pipe-d">Five stages in sequence: read the repository, write the chapters, draw
+        and capture, narrate, then check. Beneath them, the five pieces of local hardware and
+        software that do the work: a 27-billion-parameter language model on one GPU, a speech
+        model, an image-to-video model, a headless browser, and a deterministic compositor with
+        FFmpeg. Nothing is sent to a hosted model at any stage.</desc>
+      <defs>
+        <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="#08665e"/>
+        </marker>
+      </defs>
+      <g font-family="system-ui, sans-serif">
+        <g fill="#f6f5f0" stroke="#cbd3d1">
+          <rect x="20" y="40" width="204" height="88"/><rect x="269" y="40" width="204" height="88"/>
+          <rect x="518" y="40" width="204" height="88"/><rect x="767" y="40" width="204" height="88"/>
+          <rect x="1016" y="40" width="164" height="88"/>
+        </g>
+        <g fill="#202c30" font-size="21" font-weight="700" text-anchor="middle">
+          <text x="122" y="76">Read</text><text x="371" y="76">Write</text>
+          <text x="620" y="76">Draw, capture</text><text x="869" y="76">Narrate</text>
+          <text x="1098" y="76">Check</text>
+        </g>
+        <g fill="#526368" font-size="17" text-anchor="middle">
+          <text x="122" y="105">the whole repository</text>
+          <text x="371" y="105">a chapter at a time</text>
+          <text x="620" y="105">as code, and as shipped</text>
+          <text x="869" y="105">then cut to the audio</text>
+          <text x="1098" y="105">and say what is red</text>
+        </g>
+        <g stroke="#08665e" stroke-width="1.8" marker-end="url(#arw)">
+          <path d="M230 84 H263"/><path d="M479 84 H512"/><path d="M728 84 H761"/><path d="M977 84 H1010"/>
+        </g>
+        <text x="600" y="163" fill="#526368" font-size="17" text-anchor="middle">
+          Each stage is its own session. It inherits nothing but what the last one left on disk.
+        </text>
+
+        <rect x="20" y="188" width="1160" height="172" fill="#fff" stroke="#08665e" stroke-width="1.5"/>
+        <text x="42" y="218" fill="#08665e" font-size="19" font-weight="700">All of it on our own hardware</text>
+        <g fill="#f6f5f0" stroke="#cbd3d1">
+          <rect x="34" y="234" width="218" height="80"/><rect x="262" y="234" width="218" height="80"/>
+          <rect x="490" y="234" width="218" height="80"/><rect x="718" y="234" width="218" height="80"/>
+          <rect x="946" y="234" width="218" height="80"/>
+        </g>
+        <g fill="#202c30" font-size="18" font-weight="700" text-anchor="middle">
+          <text x="143" y="264">Language model</text><text x="371" y="264">Speech model</text>
+          <text x="599" y="264">Image to video</text><text x="827" y="264">Browser</text>
+          <text x="1055" y="264">Compositor</text>
+        </g>
+        <g fill="#526368" font-size="15" text-anchor="middle">
+          <text x="143" y="288">27 billion parameters,</text><text x="143" y="306">one GPU in our rack</text>
+          <text x="371" y="288">narration timed to</text><text x="371" y="306">the words, not guessed</text>
+          <text x="599" y="288">illustration only,</text><text x="599" y="306">and labelled as such</text>
+          <text x="827" y="288">the running product,</text><text x="827" y="306">never a mock-up</text>
+          <text x="1055" y="288">deterministic, then</text><text x="1055" y="306">FFmpeg, same machine</text>
+        </g>
+        <text x="42" y="344" fill="#526368" font-size="15">
+          A private repository stays on the network that holds it. That is what makes reading all of it possible.
+        </text>
+        <text x="600" y="398" fill="#202c30" font-size="17" text-anchor="middle">
+          No hosted model sees the source, at any stage, for any pack.
+        </text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>
+      The production line. Each stage is a separate bounded session rather than a step in one
+      long conversation, which is what lets a model of this size finish work of this length: a
+      session that has lost its way costs one stage, not the pack.
+    </figcaption>
+  </figure>
+
     <p>
       Each pack is produced by a sequence of bounded steps rather than one long conversation.
       A step writes one chapter, or draws one diagram, or takes the screenshots, and then
@@ -99,6 +203,50 @@
       That step has rejected screenshots showing a product mid-failure, diagrams whose labels
       were six pixels tall, and a title band colliding with a heading underneath it.
     </p>
+  <figure class="method">
+    <div class="wide" tabindex="0" role="group" aria-label="Diagram, scrollable sideways">
+    <svg viewBox="0 0 1200 392" role="img" aria-labelledby="hand-t hand-d" xmlns="http://www.w3.org/2000/svg">
+      <title id="hand-t">When the local model hands up</title>
+      <desc id="hand-d">Three tiers. The local model does the work. A frontier controller is
+        asked only when the same gate fails twice on the same thing or a service it needs is
+        missing. A person is asked only when the repair needs a judgement the repository cannot
+        settle. Each hand-up is a file on disk stating what was tried and what it would take.</desc>
+      <g font-family="system-ui, sans-serif">
+        <rect x="92" y="22" width="1088" height="96" fill="#f6f5f0" stroke="#cbd3d1"/>
+        <rect x="92" y="136" width="1088" height="96" fill="#fff" stroke="#08665e" stroke-width="1.5"/>
+        <rect x="92" y="250" width="1088" height="96" fill="#fff" stroke="#775114" stroke-width="1.5"/>
+
+        <g fill="#202c30" font-size="22" font-weight="700">
+          <text x="116" y="56">The local model does the work</text>
+          <text x="116" y="170">A frontier controller is asked</text>
+          <text x="116" y="284">A person is asked</text>
+        </g>
+        <g fill="#526368" font-size="16">
+          <text x="116" y="82">It plans, writes, draws, captures, narrates, composes, and is held to a budget it cannot see,</text>
+          <text x="116" y="104">because the harness around it keeps the clock.</text>
+          <text x="116" y="196">Only when the same gate has failed twice on the same thing, or a service it needs is not</text>
+          <text x="116" y="218">running. Not because a step was hard.</text>
+          <text x="116" y="310">Only when the repair needs a judgement the repository cannot settle: what to promise, what</text>
+          <text x="116" y="332">to cut, and what a claim is worth.</text>
+        </g>
+        <g fill="#526368" font-size="15" text-anchor="middle" font-weight="700">
+          <text x="52" y="70" transform="rotate(-90 52 70)">TIER 0</text>
+          <text x="52" y="184" transform="rotate(-90 52 184)">TIER 1</text>
+          <text x="52" y="298" transform="rotate(-90 52 298)">TIER 2</text>
+        </g>
+        <text x="1180" y="374" fill="#202c30" font-size="16" text-anchor="end">
+          A hand-up is a file: what was tried, what failed, what it would take. Not a conversation to be carried.
+        </text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>
+      Escalation, by rule rather than by feel. The point of the middle tier is that it is rare:
+      a pack that hands up on every hard step has saved nothing, so the trigger is a repeated
+      failure on the same thing, which is the shape of a problem the local model cannot see.
+    </figcaption>
+  </figure>
+
     <div class="notice">
       <strong>What the packs do not claim.</strong> Each one ends with what its gates actually
       showed, including what is still red. A pack that passed every check says so; a pack with

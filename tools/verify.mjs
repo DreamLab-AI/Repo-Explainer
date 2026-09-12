@@ -4,12 +4,14 @@
 //   1. the right passphrase opens the manifest and a file of every kind, video included;
 //   2. a wrong passphrase opens nothing, failing on the authentication tag rather than
 //      returning something that looks plausible;
-//   3. no readable byte was published — no plaintext, no recognisable file signature.
+//   3. no readable byte was published — delegated to refuse-plaintext.mjs, which is the same
+//      check the deploy gate runs, so a build cannot pass here and fail there.
 //
 //   verify.mjs --site <dir> --pack <name> --passphrase <phrase>
 import { webcrypto } from 'node:crypto';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 const { subtle } = webcrypto;
 const args = (() => { const a = {}; const v = process.argv.slice(2);
@@ -70,21 +72,17 @@ try {
   console.log('a wrong passphrase fails on the authentication tag, as it must');
 }
 
-// Nothing published may be readable. Scan every byte that ships for a signature or plain text.
-const marks = ['ftyp', '<!doctype', '<html', 'PNG', 'JFIF', 'WEBVTT', 'campaignbuilder'];
-let leaked = 0, scanned = 0;
-const walk = (dir) => {
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, e.name);
-    if (e.isDirectory()) { walk(p); continue; }
-    if (!p.endsWith('.bin')) continue;
-    scanned++;
-    const head = readFileSync(p).slice(0, 4096).toString('latin1');
-    for (const m of marks) if (head.includes(m)) { console.log(`  LEAK: ${p} contains "${m}"`); leaked++; }
-  }
-};
-walk(join(site, 'enc'));
-console.log(leaked === 0
-  ? `${scanned} sealed files scanned, none reveals its type or content`
-  : `${leaked} sealed file(s) leak something readable`);
-if (leaked) process.exitCode = 1;
+// Nothing published may be readable. The check lives in refuse-plaintext.mjs so that this
+// verification and the deploy gate cannot drift apart, and so neither can be satisfied by a
+// looser test than the other. Pass --marker <word> to also refuse a build containing a name
+// that should not travel (a client's, a product's); the word stays on the command line rather
+// than in this file, which is public.
+const markers = [];
+for (let i = 2; i < process.argv.length; i++) if (process.argv[i] === '--marker') markers.push(process.argv[++i]);
+const gate = spawnSync(process.execPath,
+  [join(import.meta.dirname, 'refuse-plaintext.mjs'), join(site, 'enc'),
+   ...markers.flatMap((m) => ['--extra', m])],
+  { encoding: 'utf8' });
+process.stdout.write(gate.stdout ?? '');
+process.stderr.write(gate.stderr ?? '');
+if (gate.status !== 0) process.exitCode = 1;

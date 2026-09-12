@@ -25,23 +25,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - name: Refuse to publish anything readable from a pack
-        run: |
-          set -euo pipefail
-          if [ -d site/enc ]; then
-            bad=$(find site/enc -type f ! -name '*.bin' ! -name '*.params.json' | head -20 || true)
-            if [ -n "$bad" ]; then
-              echo "these files are not sealed and would be published in the clear:" >&2
-              echo "$bad" >&2
-              exit 1
-            fi
-            # A sealed file that still carries a recognisable signature was not sealed.
-            if grep -rlaE 'ftyp|<!doctype|WEBVTT' site/enc --include='*.bin' | head -5 | grep .; then
-              echo "a sealed file reveals its type; the build is not safe to publish" >&2
-              exit 1
-            fi
-          fi
-          echo "nothing readable found under site/enc"
+        # The same check the local verification runs, so a build cannot pass there and fail
+        # here, or the reverse. It tests what actually matters — that no published file is a
+        # readable file of a known kind — rather than searching for short markers, which
+        # ciphertext produces by chance often enough to make a gate useless.
+        run: node tools/refuse-plaintext.mjs site/enc
 
   deploy:
     needs: refuse-plaintext

@@ -74,3 +74,21 @@ code { font-family: ui-monospace, monospace; overflow-wrap: anywhere; }
   main { padding: 28px 22px 70px; }
 }
 @media print { .skip, .gate { display: none; } }
+
+/* A method diagram carries more across than a reading column is wide. Shrinking it to fit puts
+   its labels at nine pixels, which is the same fault the asset gate rejects in a video frame,
+   so instead the figure breaks out of the column on a wide screen and scrolls on a narrow one.
+   The floor matters more than the ceiling: below about 1100px the text stops being readable, so
+   that is where scrolling starts rather than further shrinking. */
+figure.method { margin: 38px 0; }
+figure.method .wide { overflow-x: auto; overscroll-behavior-x: contain; }
+figure.method .wide svg { min-width: 1100px; }
+@media (min-width: 1200px) {
+  /* Only the diagram box breaks out; the figure itself stays in the column so the caption
+     lines up with the prose without being pushed back by hand. Percentages inside the figure
+     resolve against the column, which is what makes the centring arithmetic work here and not
+     one level up. */
+  figure.method .wide { width: min(1380px, 94vw); margin-left: calc(50% - min(690px, 47vw)); }
+  figure.method figcaption { max-width: 76ch; }
+}
+figure.method .wide:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }

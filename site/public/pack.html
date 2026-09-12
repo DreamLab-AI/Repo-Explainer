@@ -12,11 +12,11 @@
 <div class="gate" id="gate">
   <main id="main">
     <p class="eyebrow">Locked</p>
-    <h1>The <span id="gate-pack">executive</span> pack</h1>
+    <h1>The <span id="gate-pack">executive and investor pack</span></h1>
     <p>
-      This pack is encrypted where it sits. Enter the passphrase and it is decrypted in your
-      browser: nothing readable is stored on the server, and the clips are decrypted only when
-      you open them.
+      This is encrypted where it sits. Enter the passphrase and it is decrypted in your
+      browser: nothing readable is stored on the server, and the clips and pictures are
+      decrypted only when you open them.
     </p>
     <form id="gate-form">
       <input id="passphrase" type="password" autocomplete="off" spellcheck="false"
@@ -40,8 +40,9 @@
 <script src="unlock.js"></script>
 <script>
   // The header should name the pack before anything is unlocked.
+  // unlock.js holds the readable names; the header only needs the slug until it loads.
   document.getElementById('pack-name-header').textContent =
-    (new URLSearchParams(location.search).get('pack') || 'executive') + ' pack';
+    new URLSearchParams(location.search).get('pack') || 'executive';
 </script>
 </body>
 </html>

@@ -1,7 +1,9 @@
 # Repo Explainer
 
 One codebase, explained three times: to the engineer who inherits it, to the person who uses
-the product to get a job done, and to the executive deciding whether to back it.
+the product to get a job done, and to the executive deciding whether to back it. Alongside them,
+the working documentation the repository already carried, rendered so it can be read in a
+browser.
 
 The packs published here were made entirely on local hardware. The chapters were written by a
 27-billion-parameter model running on a GPU in our own rack, reading a private repository that
@@ -17,10 +19,21 @@ codebase under a confidentiality agreement.
   generated clip. This is everything that is readable.
 - `site/enc/` — the packs, sealed. Every file is encrypted, and the manifest naming them is
   encrypted too, so the repository does not disclose what a pack contains.
-- `tools/pack.mjs` — seals a pack. AES-256-GCM under a key derived from a passphrase by
+- `tools/pack.mjs` — seals a collection. AES-256-GCM under a key derived from a passphrase by
   PBKDF2-SHA256 at 600,000 iterations.
 - `tools/verify.mjs` — proves a build before it ships: that the key opens a file of every kind
-  including video, that a wrong key opens nothing, and that no sealed file reveals its type.
+  including video, and that a wrong key opens nothing.
+- `tools/refuse-plaintext.mjs` — the check that nothing readable is being published, run both
+  here and by the deploy workflow so the two cannot drift apart. It asks whether a file *is* a
+  readable file of a known kind — a signature at its own offset, or an opening that is all
+  printable text — rather than searching for short markers. Ciphertext produces "PNG" or a
+  leading brace by chance often enough that a marker search fails a healthy build of eight
+  hundred files most runs, and a gate that cries wolf is a gate that gets waved through.
+
+The pages themselves are not built here. The packs come from the `explainer` skill in
+[agentbox](https://github.com/DreamLab-AI/agentbox); the documentation stack is rendered by that
+skill's `scripts/docs-stack.mjs`, which turns a repository's own `docs/` tree into this house
+style, showing each diagram as drawn and keeping its mermaid source one click below.
 
 ## Why the content is encrypted rather than password-checked
 
@@ -37,12 +50,16 @@ why the passphrase is long and the derivation slow.
 
 The passphrase is shared separately and is not in this repository.
 
-## Building a pack
+## Building and sealing
 
 ```
-node tools/pack.mjs --pack <name> --src <pack directory> --out site --passphrase '<phrase>'
-node tools/verify.mjs --site site --pack <name> --passphrase '<phrase>'
+node tools/pack.mjs   --pack <name> --src <directory> --out site --passphrase '<phrase>'
+node tools/verify.mjs --site site --pack <name> --passphrase '<phrase>' [--marker <word>]
 ```
+
+`--marker` refuses a build in which a given word appears anywhere in the ciphertext, for a name
+that must not travel. It is an argument rather than a constant because this repository is
+public, and a list of names you are trying not to publish is itself a disclosure.
 
 Sealing happens on the machine that holds the source. The key never reaches a CI runner, and
 the workflow refuses to publish a build in which anything under `site/enc` is readable.
