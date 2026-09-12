@@ -50,6 +50,14 @@ jobs:
           mkdir -p _site
           cp -r site/public/. _site/
           if [ -d site/enc ]; then mkdir -p _site/enc && cp -r site/enc/. _site/enc/; fi
+          # Stamp the commit onto the viewer's own assets. Pages serves them with ten minutes
+          # of cache, so without this a reader who visited before a fix keeps the broken
+          # version for ten minutes after every deploy, and so does anyone testing it — which
+          # cost real time chasing a caption bug that was already fixed.
+          for f in _site/*.html; do
+            sed -i "s|\(src\|href\)=\"\(unlock\.js\|style\.css\)\"|\1=\"\2?v=${GITHUB_SHA::12}\"|g" "$f"
+          done
+          grep -ho 'unlock\.js?v=[0-9a-f]*' _site/*.html | sort -u || echo 'no script reference was stamped'
           # Jekyll would otherwise ignore anything beginning with an underscore.
           touch _site/.nojekyll
           find _site -maxdepth 2 -type d | sed 's|^|  |'
