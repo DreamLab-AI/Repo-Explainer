@@ -121,7 +121,11 @@ async function render(path) {
     const url = await urlFor(resolve(raw));
     if (url) el.setAttribute('poster', url); else el.removeAttribute('poster');
   }
-  for (const el of doc.querySelectorAll('[src]')) {
+  // Everything with a src except a caption track, which is handled on its own further down:
+  // this loop would otherwise give it a blob address here, in the parser's document, which is
+  // precisely where a track cannot load one. Two loops both claiming the same element is how
+  // the caption fix appeared to be running while doing nothing.
+  for (const el of doc.querySelectorAll('[src]:not(track)')) {
     const raw = el.getAttribute('src');
     if (!raw || /^(https?:|data:|blob:)/i.test(raw)) continue;
     const url = await urlFor(resolve(raw));
