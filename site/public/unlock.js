@@ -76,6 +76,32 @@ async function textOf(path) {
   return new TextDecoder().decode(plain);
 }
 
+// WebVTT, reduced to what a caption file from a narration step actually contains: an optional
+// identifier, a timing line, and the lines of text under it. Settings after the timings are
+// ignored rather than mis-parsed. Anything unrecognised is skipped, because one malformed cue
+// should cost that cue and not the whole track.
+function parseVtt(text) {
+  const t = (s) => {
+    const m = s.trim().match(/^(?:(\d+):)?(\d{1,2}):(\d{2})(?:[.,](\d{1,3}))?$/);
+    if (!m) return null;
+    return (+(m[1] ?? 0)) * 3600 + (+m[2]) * 60 + (+m[3]) + (+(m[4] ?? 0)) / 1000;
+  };
+  const cues = [];
+  for (const block of text.replace(/\r\n?/g, '\n').split(/\n{2,}/)) {
+    const lines = block.split('\n').filter((l) => l.trim() !== '');
+    if (!lines.length || /^WEBVTT/.test(lines[0])) continue;
+    const at = lines.findIndex((l) => l.includes('-->'));
+    if (at < 0) continue;
+    const [rawStart, rest] = lines[at].split('-->');
+    const start = t(rawStart);
+    const end = t((rest ?? '').trim().split(/\s+/)[0] ?? '');
+    const body = lines.slice(at + 1).join('\n');
+    if (start === null || end === null || end <= start || !body) continue;
+    try { cues.push(new VTTCue(start, end, body)); } catch { /* skip a cue the browser rejects */ }
+  }
+  return cues;
+}
+
 // Rewrite a decrypted page so every reference points at a blob rather than at the host, and
 // links between chapters stay inside the viewer.
 async function render(path) {
@@ -172,20 +198,31 @@ async function render(path) {
     a.setAttribute('tabindex', '0');
   }
   $('#view').replaceChildren(...doc.body.childNodes);
-  // Captions need a track element this document made. One parsed out of the pack's HTML and
-  // adopted here refuses to load a blob no matter when it is given the address: readyState stays
-  // 3, cues stay empty, and the clips play with no captions and no complaint. A fresh element
-  // pointed at the very same blob reads every cue, which is how this was pinned down. So each
-  // adopted track is rebuilt from its own attributes and then given the address.
-  for (const old of $('#view').querySelectorAll('track[data-blob-src]')) {
-    const t = document.createElement('track');
-    for (const { name, value } of [...old.attributes]) {
-      if (name !== 'src' && name !== 'data-blob-src') t.setAttribute(name, value);
-    }
-    const url = old.dataset.blobSrc;
-    old.replaceWith(t);
-    t.src = url;
+  // Captions, added as cues rather than fetched by the browser.
+  //
+  // Three ways of giving a track element a blob URL were tried and all three failed: in the
+  // parser's document, after adoption, and on an element rebuilt here. readyState settles on 3
+  // and the cues stay empty, so every clip plays with no captions and nothing says why. Rather
+  // than keep guessing at what the element objects to, the text is decrypted here and the cues
+  // are constructed directly, which depends on nothing but the WebVTT itself.
+  for (const holder of $('#view').querySelectorAll('track[data-blob-src]')) {
+    const url = holder.dataset.blobSrc;
+    delete holder.dataset.blobSrc;
+    const video = holder.closest('video');
+    if (!video) continue;
+    try {
+      const vtt = await (await fetch(url)).text();
+      // A track the video makes for itself is always writable. Reusing the element's own
+      // TextTrack risks one already settled into an error state, which is the whole problem.
+      const track = video.addTextTrack(holder.kind || 'captions', holder.label || 'English',
+                                      holder.srclang || 'en');
+      const cues = parseVtt(vtt);
+      for (const cue of cues) track.addCue(cue);
+      track.mode = cues.length && holder.hasAttribute('default') ? 'showing' : 'hidden';
+      holder.remove();   // it would sit there failing to load, and show as a second empty track
+    } catch { /* a clip without captions still plays; a broken page does not */ }
   }
+
   $('#view').querySelectorAll('[data-page]').forEach((a) => {
     const go = (e) => { e.preventDefault(); render(a.dataset.page); window.scrollTo(0, 0); };
     a.addEventListener('click', go);
