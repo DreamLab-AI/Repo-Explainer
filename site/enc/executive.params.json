@@ -2,7 +2,7 @@
   "pack": "executive",
   "kdf": "PBKDF2-SHA256",
   "iterations": 600000,
-  "salt": "AP0yKMwLNH6zKzeYW3mV3w==",
+  "salt": "8es24q920oDbHgkuDHeu1A==",
   "cipher": "AES-256-GCM",
   "ivBytes": 12
 }
