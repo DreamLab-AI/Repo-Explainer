@@ -2,7 +2,7 @@
   "pack": "tour",
   "kdf": "PBKDF2-SHA256",
   "iterations": 600000,
-  "salt": "WzXvTLi0Hoh6/kJVEbhQpA==",
+  "salt": "dvkktvi7NY+wL21FuPjYHw==",
   "cipher": "AES-256-GCM",
   "ivBytes": 12
 }
