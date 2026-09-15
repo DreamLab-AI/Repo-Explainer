@@ -2,7 +2,7 @@
   "pack": "developer",
   "kdf": "PBKDF2-SHA256",
   "iterations": 600000,
-  "salt": "jHibGR3c6p6VfzWZO/laRQ==",
+  "salt": "CFhocj14UoaT7x4NuDGGug==",
   "cipher": "AES-256-GCM",
   "ivBytes": 12
 }
