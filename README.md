@@ -5,13 +5,13 @@ the product to get a job done, and to the executive deciding whether to back it.
 the working documentation the repository already carried, rendered so it can be read in a
 browser.
 
-The packs published here were made entirely on local hardware. The chapters were written by a
-27-billion-parameter model running on a GPU in our own rack, reading a private repository that
-never left it and citing the file and lines behind every claim. The diagrams were drawn as
-code by the same model. The narration came from a local speech model, the illustration from a
-local image-to-video model, and the assembly from a deterministic compositor and FFmpeg on the
-same machine. No hosted model saw the source, which is what makes the work possible on a
-codebase under a confidentiality agreement.
+The first edition of the packs published here was made entirely on local hardware: chapters,
+diagrams, narration and clips from models running on a GPU in our own rack, reading a private
+repository that never left it. The current edition was made differently and says so on the
+landing page: the product was set up, deployed and used end to end on the client's own cloud
+project on 14 September 2026 with a browser recording every screen, and the packs were rewritten
+against that run by a frontier model working under the engagement's terms, with each pack's
+build refusing any claim it cannot tie to a file and line and any figure without a caption.
 
 ## What is in this repository
 

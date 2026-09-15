@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="style.css">
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header>REPO EXPLAINER <span>Three audiences, one codebase, all of it made on local hardware</span></header>
+<header>REPO EXPLAINER <span>Three audiences, one codebase, recorded from the system running on the client&rsquo;s cloud</span></header>
 
 <main id="main">
   <p class="eyebrow">DreamLab AI Consulting</p>
@@ -27,8 +27,8 @@
     </video>
     <figcaption>
       Generated on a local GPU with an image-to-video model, as illustration rather than as a
-      picture of any product. Everything else in these packs was made the same way: on this
-      hardware, by a model running in this building.
+      picture of any product. The packs themselves show the product itself: every figure is a
+      screenshot of the deployed system, taken during one recorded run on 14 September 2026.
     </figcaption>
   </figure>
 
@@ -39,31 +39,31 @@
       nothing readable until a key is supplied.
     </p>
     <p>
-      Two are open. The pack for the people who use the product is in production: its curriculum
-      is written and its chapters and films are being made.
+      All three are open. This edition replaces the first: the chapters were rewritten against
+      the product as it was set up, deployed and used end to end on the client&rsquo;s own Google
+      Cloud project, and every figure is a screenshot from that run.
     </p>
     <div class="packs">
       <a class="pack" href="pack.html?pack=executive">
         <h3>Executive and investor</h3>
         <p>What the product is, what one change does to it, where the decisions sit, and what
-           an evaluator should try first. Seven chapters, seven diagrams, a narrated clip each.</p>
+           an evaluator should try first. Seven chapters, seven diagrams, and the screens of the
+           real run &mdash; a request reaching the client&rsquo;s production database included.</p>
         <span class="state">Open →</span>
       </a>
       <a class="pack" href="pack.html?pack=user">
         <h3>The people who use it</h3>
-        <p>Fifteen chapters, one per job someone came to do, each named in the product&rsquo;s
-           own words and each with a film of the job being done &mdash; fourteen and a half
-           minutes in all, captioned. It says plainly which four things the product does not
-           do rather than leaving you to find out.</p>
+        <p>Ten chapters, one per job someone came to do, each named in the product&rsquo;s own
+           words and each showing the screen as it is. It teaches the sentence the product
+           actually shows, says which surfaces the run did not exercise, and says plainly what
+           the product does not do rather than leaving you to find out.</p>
         <span class="state">Open &rarr;</span>
       </a>
       <a class="pack" href="pack.html?pack=developer">
         <h3>The engineer who inherits it</h3>
-        <p>The system by its parts: fifteen chapters, 24,000 words, 996 source references, five
-           narrated walkthroughs of the real thing running, and an appendix of every screen it
-           captured. Its contents page opens by saying what has been checked: 672 of its 996
-           citations, with six chapters checked line by line, and 324 elsewhere still
-           unread.</p>
+        <p>The system by its parts: eleven chapters, every claim linked to the file and lines it
+           was read from and checked by the build, and an appendix of every screen the run
+           captured. It ends by naming what is unfinished.</p>
         <span class="state">Open &rarr;</span>
       </a>
     </div>
@@ -74,8 +74,8 @@
     <p>
       The packs are written for people. This is different: it is the working documentation the
       repository carries in its own tree, rendered so it can be read in a browser. Two hundred
-      and eighteen pages, and four hundred and fifty-six diagrams drawn from mermaid sources
-      held beside the code.
+      and thirty-two pages, and nearly four hundred diagrams drawn from mermaid sources held
+      beside the code, as the tree stood after the run.
     </p>
     <p>
       It is here because a pack is a route through a system and this is the map underneath it.
@@ -100,31 +100,32 @@
   </section>
 
   <section>
-    <h2>Made here, on our own hardware</h2>
+    <h2>How this edition was made</h2>
     <p>
-      No part of this content was written by a hosted model. The chapters, the diagrams, the
-      narration and the clips were produced by a large language model running on a GPU in our
-      own rack, reading a private repository that never left it.
+      The first edition of these packs was written entirely on local hardware, by a
+      27-billion-parameter model reading the repository on our own GPU. This edition was made
+      differently, and says so. On 14 September 2026 the product was set up, deployed and used
+      end to end on the client&rsquo;s own cloud project, with a browser recording every screen.
+      The packs were then rewritten against that run by a frontier model working under the
+      engagement&rsquo;s terms, with the repository&rsquo;s own build refusing any claim it could
+      not tie to a file and line, and any figure without a caption.
     </p>
     <table>
       <tr><th>What</th><th>How it was made</th></tr>
-      <tr><td>Chapters</td><td>A 27-billion-parameter model on a local GPU, reading the source and citing the lines it read</td></tr>
-      <tr><td>Diagrams</td><td>Drawn as code by the same model, rendered locally, then measured for legibility at the size they are seen</td></tr>
-      <tr><td>Screenshots</td><td>Captured from the running product by a browser on the same network, never a mock-up</td></tr>
-      <tr><td>Narration</td><td>Synthesised by a local speech model; every scene timed to the audio rather than estimated</td></tr>
-      <tr><td>Illustration</td><td>An image-to-video model on a local GPU, labelled as illustration wherever it appears</td></tr>
-      <tr><td>Assembly</td><td>A deterministic compositor and FFmpeg, on the same machine</td></tr>
+      <tr><td>Chapters</td><td>Rewritten against the recorded run and the source; every source claim is a link to the lines it was read from, checked by the build</td></tr>
+      <tr><td>Diagrams</td><td>Drawn as code from the run and rendered locally</td></tr>
+      <tr><td>Screenshots</td><td>Captured from the deployed product on the client&rsquo;s cloud by a real browser, never a mock-up; credentials shown only as fingerprints</td></tr>
+      <tr><td>Films</td><td>The first edition&rsquo;s narrated clips were retired: they showed an earlier state of the product</td></tr>
+      <tr><td>Illustration</td><td>The opening clip, from an image-to-video model on a local GPU, labelled as illustration</td></tr>
     </table>
     <p>
-      The reason is not cost. A codebase under a confidentiality agreement cannot be posted to
-      someone else's inference endpoint, and an explainer worth having must read the whole
-      thing. Keeping the model on the same network as the code is what makes the work possible
-      at all.
+      The packs are sealed here as before: the public repository holds ciphertext, and a reader
+      with the passphrase decrypts in the browser.
     </p>
   </section>
 
   <section>
-    <h2>How a pack is built</h2>
+    <h2>How the first edition was built</h2>
   <figure class="method">
     <div class="wide" tabindex="0" role="group" aria-label="Diagram, scrollable sideways">
     <svg viewBox="0 0 1200 430" role="img" aria-labelledby="pipe-t pipe-d" xmlns="http://www.w3.org/2000/svg">
@@ -133,7 +134,7 @@
         and capture, narrate, then check. Beneath them, the five pieces of local hardware and
         software that do the work: a 27-billion-parameter language model on one GPU, a speech
         model, an image-to-video model, a headless browser, and a deterministic compositor with
-        FFmpeg. Nothing is sent to a hosted model at any stage.</desc>
+        FFmpeg. In that edition nothing was sent to a hosted model at any stage.</desc>
       <defs>
         <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M0 0 L10 5 L0 10 z" fill="#08665e"/>
@@ -184,10 +185,10 @@
           <text x="1055" y="288">deterministic, then</text><text x="1055" y="306">FFmpeg, same machine</text>
         </g>
         <text x="42" y="344" fill="#526368" font-size="15">
-          A private repository stays on the network that holds it. That is what makes reading all of it possible.
+          Every figure is the deployed product, recorded; every source claim is checked against the file it cites.
         </text>
         <text x="600" y="398" fill="#202c30" font-size="17" text-anchor="middle">
-          No hosted model sees the source, at any stage, for any pack.
+          The first edition was made entirely on local hardware; this edition says how it differs.
         </text>
       </g>
     </svg>
