@@ -247,6 +247,7 @@ const NAMES = {
   user: 'pack for the people who use it',
   developer: 'pack for the engineer who inherits it',
   docs: 'documentation stack the repository carries',
+  diagrams: 'diagram corpus the repository carries',
 };
 const nameOf = (pack) => NAMES[pack] ?? `${pack} pack`;
 
