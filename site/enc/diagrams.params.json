@@ -2,7 +2,7 @@
   "pack": "diagrams",
   "kdf": "PBKDF2-SHA256",
   "iterations": 600000,
-  "salt": "tq/pqzie4LPRLgpsTwcm5w==",
+  "salt": "hi1snxfT4OtM7vCE3dtwww==",
   "cipher": "AES-256-GCM",
   "ivBytes": 12
 }
